@@ -4,6 +4,7 @@ on:
   push:
     branches: 
       - master
+      - add-2weeks
   pull_request:
     branches:
       - master
