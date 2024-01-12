@@ -31,7 +31,7 @@ func main() {
 	ghUsername := os.Getenv("GH_USER")
 	gistID := os.Getenv("GIST_ID")
 
-	steamOption := "RECENT" // options for types of games to list: RECENT (recently played games), ALLTIME <default> (playtime of games in descending order)
+	steamOption := "RECENT_2WEEKS" // options for types of games to list: RECENT (recently played games), ALLTIME <default> (playtime of games in descending order)
 	if os.Getenv("STEAM_OPTION") != "" {
 		steamOption = os.Getenv("STEAM_OPTION")
 	}
@@ -43,7 +43,7 @@ func main() {
 			multiLined = true
 		}
 	}
-	
+
 	updateOption := os.Getenv("UPDATE_OPTION") // options for update: GIST (Gist only), MARKDOWN (README only), GIST_AND_MARKDOWN (Gist and README)
 	markdownFile := os.Getenv("MARKDOWN_FILE") // the markdown filename (e.g. MYFILE.md)
 
@@ -63,7 +63,7 @@ func main() {
 
 	var (
 		filename string
-		lines []string
+		lines    []string
 	)
 
 	if steamOption == "ALLTIME" {
@@ -77,6 +77,12 @@ func main() {
 		lines, err = box.GetRecentGames(ctx, steamID, multiLined)
 		if err != nil {
 			panic("GetRecentGames err:" + err.Error())
+		}
+	} else if steamOption == "RECENT_2WEEKS" {
+		filename = "🎮 Steam games played in the last 2 weeks"
+		lines, err = box.GetRecentGames2Weeks(ctx, steamID, multiLined)
+		if err != nil {
+			panic("GetRecentGames2Weeks err:" + err.Error())
 		}
 	}
 
