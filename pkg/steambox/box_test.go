@@ -18,7 +18,7 @@ func TestBox_GetPlayTime(t *testing.T) {
 	if os.Getenv("MULTILINE") != "" {
 		multiLined, err = strconv.ParseBool(os.Getenv("MULTILINE"))
 		if err != nil {
-			panic("multiLined option error: "+ err.Error())
+			panic("multiLined option error: " + err.Error())
 		}
 	}
 
@@ -45,6 +45,30 @@ func TestBox_GetPlayTime(t *testing.T) {
 }
 
 func TestBox_GetRecentGames(t *testing.T) {
+	var err error
+	steamAPIKey := os.Getenv("STEAM_API_KEY")
+	steamID, _ := strconv.ParseUint(os.Getenv("STEAM_ID"), 10, 64)
+
+	ghToken := os.Getenv("GH_TOKEN")
+	ghUsername := os.Getenv("GH_USER")
+
+	multiLined := false // boolean for whether hours should have their own line - YES = true, NO = false
+	if os.Getenv("MULTILINE") != "" {
+		lineOption := os.Getenv("MULTILINE")
+		if lineOption == "YES" {
+			multiLined = true
+		}
+	}
+
+	box := NewBox(steamAPIKey, ghUsername, ghToken)
+	lines, err := box.GetRecentGames(context.Background(), steamID, multiLined)
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(strings.Join(lines, "\n"))
+}
+
+func TestBox_GetRecentGames2Weeks(t *testing.T) {
 	var err error
 	steamAPIKey := os.Getenv("STEAM_API_KEY")
 	steamID, _ := strconv.ParseUint(os.Getenv("STEAM_ID"), 10, 64)

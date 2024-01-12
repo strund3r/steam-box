@@ -137,6 +137,47 @@ func (b *Box) GetRecentGames(ctx context.Context, steamID uint64, multiLined boo
 	return lines, nil
 }
 
+// GetRecentGames gets 5 recently played games from the Steam API.
+func (b *Box) GetRecentGames2Weeks(ctx context.Context, steamID uint64, multiLined bool) ([]string, error) {
+	params := &steam.GetRecentlyPlayedGamesParams{
+		SteamID: steamID,
+		Count:   5,
+	}
+
+	gameRet, err := b.steam.IPlayerService.GetRecentlyPlayedGames(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	var lines []string
+	var max = 0
+
+	for _, game := range gameRet.Games {
+		if max >= 5 {
+			break
+		}
+
+		if game.Name == "" {
+			game.Name = "Unknown Game"
+		}
+
+		hours := game.Playtime2Weeks / 60
+		mins := int(math.Floor(float64(game.Playtime2Weeks % 60)))
+
+		if multiLined {
+			gameLine := getNameEmoji(game.Appid, game.Name)
+			lines = append(lines, gameLine)
+			hoursLine := fmt.Sprintf("						    🕘 %d hrs %d mins", hours, mins)
+			lines = append(lines, hoursLine)
+		} else {
+			line := pad(getNameEmoji(game.Appid, game.Name), " ", 35) + " " +
+				pad(fmt.Sprintf("🕘 %d hrs %d mins", hours, mins), "", 16)
+			lines = append(lines, line)
+		}
+		max++
+	}
+	return lines, nil
+}
+
 // UpdateMarkdown updates the content to the markdown file.
 func (b *Box) UpdateMarkdown(ctx context.Context, title, filename string, content []byte) error {
 	md, err := ioutil.ReadFile(filename)
